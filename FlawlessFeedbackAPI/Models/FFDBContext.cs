@@ -131,9 +131,7 @@ namespace FlawlessFeedbackAPI.Models
                     UserRoleTitle = "ViewOnly"
                 });
 
-
-
-            // Hashing passwords when added to the DB - 
+            // Hashing passwords when added to the DB -
             // Provided by Shaun O'Sullivan - Class tracker API - Week 13 with Auth, Hashing and user roles
             // Using BCrypt.Net
             modelBuilder.Entity<UserInfo>().HasData(
@@ -144,7 +142,7 @@ namespace FlawlessFeedbackAPI.Models
                  UserEmail = "Steve@mail.com",
                  UserPass = BCrypt.Net.BCrypt.HashPassword("abc_123"),
                  UserRoleID = 1
-             }); ;
+             });
 
             modelBuilder.Entity<UserInfo>().HasData(
              new UserInfo

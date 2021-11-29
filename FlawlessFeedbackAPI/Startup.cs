@@ -25,7 +25,7 @@ namespace FlawlessFeedbackAPI
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<FFDBContext>(opts =>
-            opts.UseSqlServer(Configuration.GetConnectionString("FlawlessFeedbackLocal")));
+            opts.UseSqlServer(Configuration.GetConnectionString("FlawlessFeedbackPC")));
             services.AddControllers();
             services.AddMvc().AddNewtonsoftJson(opts => opts.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
             services.AddSwaggerGen();

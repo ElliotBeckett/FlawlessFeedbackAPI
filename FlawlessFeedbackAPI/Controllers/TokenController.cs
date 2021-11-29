@@ -43,10 +43,10 @@ namespace FlawlessFeedbackAPI.Controllers
         public IActionResult GenerateToken(UserInfo _userData)
         {
             // All of the null checks
-            if (_userData != null && _userData.UserName != null && _userData.UserPass != null)
+            if (_userData != null && _userData.UserEmail != null && _userData.UserPass != null)
             {
                 // retrieve the user for these credentials
-                var user = GetUser(_userData.UserName, _userData.UserPass);
+                var user = CheckUser(_userData.UserEmail, _userData.UserPass);
                 // If we have a user that matches the credentials
                 if (user != null)
                 {
@@ -105,22 +105,11 @@ namespace FlawlessFeedbackAPI.Controllers
 
         #region Custom Methods
 
-        // Non-Hashed password check
-        //private UserInfo GetUser(string userName, string password)
-        //{
-        //    var user = _context.UserInfos.FirstOrDefault(u => u.UserName == userName);
-        //    if (user != null && user.UserPass == password)
-        //    {
-        //        return user;
-        //    }
-        //    return null;
-        //}
-
         // Hashed password check -
         // Provided by Shaun O'Sullivan - Class tracker API - Week 13 with Auth, Hashing and user roles
-        private UserInfo GetUser(string userName, string password)
+        private UserInfo CheckUser(string userEmail, string password)
         {
-            var user = _context.UserInfos.FirstOrDefault(u => u.UserName == userName);
+            var user = _context.UserInfos.FirstOrDefault(u => u.UserEmail == userEmail);
 
             // Using BCrypt to check hashed password against provided password
             if (user != null && BCrypt.Net.BCrypt.Verify(password, user.UserPass))
@@ -130,21 +119,35 @@ namespace FlawlessFeedbackAPI.Controllers
             return null;
         }
 
+        [HttpPost] // - Post request, so data must be sent with the request
+        // Creates a custom route for the method
+        [Route("GetUserName")]
+        public string GetUserName(UserInfo user)
+        {
+            var userName = _context.UserInfos.FirstOrDefault(u => u.UserEmail == user.UserEmail).UserName;
 
-        private string GetUserRole(string userName, int roleID) 
+            if (!String.IsNullOrWhiteSpace(userName))
+            {
+                return userName;
+            }
+
+            return null;
+        }
+
+        private string GetUserRole(string userName, int roleID)
         {
             var user = _context.UserInfos.FirstOrDefault(u => u.UserName == userName);
             var userRoleID = user.UserRoleID;
             var userRoleTitle = _context.UserRoles.FirstOrDefault(r => r.UserRoleID == userRoleID).UserRoleTitle;
-          
 
-            if(user.UserRoleID == roleID && userRoleID == roleID) 
+            if (user.UserRoleID == roleID && userRoleID == roleID)
             {
                 return userRoleTitle.ToString();
             }
 
             return null;
         }
+
         #endregion Custom Methods
     }
 }
