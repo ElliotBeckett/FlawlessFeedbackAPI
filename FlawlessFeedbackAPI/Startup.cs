@@ -8,12 +8,15 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using System;
+using System.Diagnostics;
 using System.Text;
 
 namespace FlawlessFeedbackAPI
 {
     public class Startup
     {
+        private string connStringToUse = "";
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -24,8 +27,16 @@ namespace FlawlessFeedbackAPI
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            // If we are running in Debug mode, get the name of the PC and change Conn string to match
+            // The database hosted on that machine
+#if DEBUG
             services.AddDbContext<FFDBContext>(opts =>
-            opts.UseSqlServer(Configuration.GetConnectionString("FlawlessFeedbackPC")));
+            opts.UseSqlServer(Configuration.GetConnectionString(GetPCName())));
+#else
+             services.AddDbContext<FFDBContext>(opts =>
+            opts.UseSqlServer(Configuration.GetConnectionString("FlawlessFeedbackLocal")));
+#endif
+
             services.AddControllers();
             services.AddMvc().AddNewtonsoftJson(opts => opts.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
             services.AddSwaggerGen();
@@ -88,6 +99,34 @@ namespace FlawlessFeedbackAPI
             {
                 endpoints.MapControllers();
             });
+        }
+
+        /// <summary>
+        /// Gets the name of the current PC and returns the connection string for that matching PC
+        /// </summary>
+        /// <returns>String - Connection String</returns>
+        private string GetPCName()
+        {
+            string currentPCName = Environment.MachineName; // Gets the current machine name
+            const string laptopName = "ELLIOT-HPENVY-T"; // Constant string value for the Laptop
+            const string desktopName = "ELLIOT-PC"; // Constant string value for the PC
+
+            switch (currentPCName)
+            {
+                case laptopName:
+                    connStringToUse = "FlawlessFeedbackLocal";
+                    break;
+
+                case desktopName:
+                    connStringToUse = "FlawlessFeedbackPC";
+                    break;
+
+                default:
+                    connStringToUse = "FlawlessFeedbackAzure";
+                    break;
+            }
+
+            return connStringToUse;
         }
     }
 }
