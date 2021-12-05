@@ -13,8 +13,6 @@ namespace FlawlessFeedbackAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    // Lock down the entire controller to Admins only
-    [Authorize(Roles = ("Admin"))]
     public class RoleController : ControllerBase
     {
         #region Setup + CTOR
@@ -26,8 +24,7 @@ namespace FlawlessFeedbackAPI.Controllers
             _context = context;
         }
 
-
-        #endregion
+        #endregion Setup + CTOR
 
         // GET: api/<RoleController>
         /// <summary>
@@ -35,17 +32,17 @@ namespace FlawlessFeedbackAPI.Controllers
         /// </summary>
         /// <returns>List of user roles</returns>
         [HttpGet]
+        [Authorize(Roles = "Admin,User")]
         public ActionResult<IEnumerable<UserRole>> Get()
         {
             var roles = _context.UserRoles.ToList();
 
-            if(roles == null) 
+            if (roles == null)
             {
                 return BadRequest();
             }
 
-            return Ok(roles); 
-
+            return Ok(roles);
         }
 
         /// <summary>
@@ -54,12 +51,13 @@ namespace FlawlessFeedbackAPI.Controllers
         /// <param name="id">ID of the role to search by</param>
         /// <returns>List of users</returns>
         [HttpGet("GetRoleWithUsers/{id}")]
-        public ActionResult<IEnumerable<UserRole>> GetRoleWithUsers(int id) 
+        [Authorize(Roles = "Admin,User")]
+        public ActionResult<IEnumerable<UserRole>> GetRoleWithUsers(int id)
         {
             // TODO - Clean this up
             var role = _context.UserInfos.Where(u => u.UserRoleID == id).Include(r => r.UserRole).OrderBy(r => r.UserRole.UserRoleTitle).ToList();
 
-            if(role == null) 
+            if (role == null)
             {
                 return BadRequest();
             }
@@ -74,6 +72,7 @@ namespace FlawlessFeedbackAPI.Controllers
         /// <param name="id">ID of the role to get</param>
         /// <returns>Single role details</returns>
         [HttpGet("{id}")]
+        [Authorize(Roles = "Admin,User")]
         public ActionResult<UserRole> Get(int id)
         {
             var role = _context.UserRoles.Where(r => r.UserRoleID == id).FirstOrDefault();
@@ -93,15 +92,15 @@ namespace FlawlessFeedbackAPI.Controllers
         /// <param name="role">Role to create</param>
         /// <returns>Created role</returns>
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public ActionResult Post([FromBody] UserRole role)
         {
-            if (ModelState.IsValid) 
+            if (ModelState.IsValid)
             {
                 _context.UserRoles.Add(role);
                 // TODO - Add Try catch for every Post Method
                 _context.SaveChanges();
                 return CreatedAtAction("Post", role);
-
             }
 
             return BadRequest();
@@ -109,15 +108,16 @@ namespace FlawlessFeedbackAPI.Controllers
 
         // PUT api/<RoleController>/5
         /// <summary>
-        /// Updates a selected role 
+        /// Updates a selected role
         /// </summary>
         /// <param name="id">ID of the Role to update</param>
         /// <param name="role">Updated details of the role</param>
         /// <returns>Updated role</returns>
         [HttpPut("{id}")]
+        [Authorize(Roles = "Admin")]
         public ActionResult Put(int id, UserRole role)
         {
-            if(role != null) 
+            if (role != null)
             {
                 _context.Entry(role).State = EntityState.Modified;
 
@@ -137,6 +137,7 @@ namespace FlawlessFeedbackAPI.Controllers
 
         // DELETE api/<RoleController>/5
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
         public ActionResult Delete(int id)
         {
             var role = _context.UserRoles.Find(id);
@@ -152,7 +153,6 @@ namespace FlawlessFeedbackAPI.Controllers
                 }
                 catch (DbUpdateException)
                 {
-
                     return BadRequest();
                 }
             }

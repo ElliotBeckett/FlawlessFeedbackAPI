@@ -4,14 +4,16 @@ using FlawlessFeedbackAPI.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace FlawlessFeedbackAPI.Migrations
 {
     [DbContext(typeof(FFDBContext))]
-    partial class FFDBContextModelSnapshot : ModelSnapshot
+    [Migration("20211203014630_Database Rebuild 2")]
+    partial class DatabaseRebuild2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
