@@ -32,7 +32,6 @@ namespace FlawlessFeedbackAPI.Controllers
         /// </summary>
         /// <returns>List of user roles</returns>
         [HttpGet]
-        [Authorize(Roles = "Admin,User")]
         public ActionResult<IEnumerable<UserRole>> Get()
         {
             var roles = _context.UserRoles.ToList();
